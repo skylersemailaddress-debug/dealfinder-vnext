@@ -2,7 +2,7 @@ from __future__ import annotations
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from app.core.config import env_bool, env_int
+from app.core.config import env_bool
 from app.core.cache import get as cache_get, set as cache_set
 from app.models import PriceObs, ProviderResult
 from app.providers.ebay_live import EbayLiveProvider
@@ -40,7 +40,6 @@ def suggest_price(payload: dict) -> dict:
         include_shipping = env_bool("PRICING_INCLUDE_SHIPPING", True)
 
     cache_key = f"suggest::{q}::{include_shipping}"
-    ttl = env_int("PRICING_CACHE_TTL_SEC", 900)
     hit = cache_get(cache_key)
     if hit is not None:
         return hit

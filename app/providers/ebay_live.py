@@ -1,7 +1,9 @@
 from __future__ import annotations
-import os, time, json
+import os
+import time
 import requests
 from base64 import b64encode
+from urllib.parse import quote
 
 from app.core.config import env, env_int
 from app.models import PriceObs, ProviderResult
@@ -23,7 +25,7 @@ def _mint_token() -> tuple[str | None, str | None]:
 
     basic = b64encode(f"{cid}:{csec}".encode("ascii")).decode("ascii")
     headers = {"Authorization": f"Basic {basic}", "Content-Type": "application/x-www-form-urlencoded"}
-    body = "grant_type=client_credentials&scope=" + requests.utils.quote("https://api.ebay.com/oauth/api_scope", safe="")
+    body = "grant_type=client_credentials&scope=" + quote("https://api.ebay.com/oauth/api_scope", safe="")
     r = requests.post("https://api.ebay.com/identity/v1/oauth2/token", headers=headers, data=body, timeout=25)
     if r.status_code >= 400:
         return None, f"token mint failed HTTP {r.status_code}: {r.text[:200]}"

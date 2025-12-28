@@ -1,7 +1,8 @@
 from cachetools import TTLCache
 from threading import RLock
+from typing import Any
 
-_cache = TTLCache(maxsize=2048, ttl=900)
+_cache: TTLCache[str, Any] = TTLCache(maxsize=2048, ttl=900)
 _lock = RLock()
 
 def get(key):
