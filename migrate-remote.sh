@@ -3,8 +3,6 @@
 # Repository Migration Script
 # This script updates the git remote origin for this repository
 
-set -e
-
 echo "Repository Migration Script"
 echo "=========================="
 echo ""
@@ -40,16 +38,40 @@ fi
 
 echo ""
 echo "Step 1: Removing existing origin remote..."
-git remote remove origin
+if git remote get-url origin &>/dev/null; then
+    git remote remove origin
+    echo "  ✓ Removed existing origin remote"
+else
+    echo "  ℹ No existing origin remote found, skipping removal"
+fi
 
 echo "Step 2: Adding new origin remote..."
-git remote add origin "$NEW_REMOTE"
+if ! git remote add origin "$NEW_REMOTE" 2>/dev/null; then
+    echo "  ⚠ Failed to add new origin remote (it may already exist)"
+    echo "  Attempting to update existing remote..."
+    git remote set-url origin "$NEW_REMOTE"
+    echo "  ✓ Updated existing origin remote to: $NEW_REMOTE"
+else
+    echo "  ✓ Added new origin remote: $NEW_REMOTE"
+fi
 
 echo "Step 3: Renaming current branch to main..."
-git branch -M main
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    git branch -M main
+    echo "  ✓ Renamed branch '$CURRENT_BRANCH' to 'main'"
+else
+    echo "  ℹ Current branch is already 'main', no rename needed"
+fi
 
 echo "Step 4: Pushing to new origin..."
-git push -u origin main
+if git push -u origin main; then
+    echo "  ✓ Pushed to new origin"
+else
+    echo "  ⚠ Push failed. This may be due to upstream divergence or authentication issues."
+    echo "  Please resolve manually and retry with: git push -u origin main"
+    exit 1
+fi
 
 echo ""
 echo "Migration completed successfully!"
