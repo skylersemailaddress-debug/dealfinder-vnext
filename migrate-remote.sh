@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Repository Migration Script
 # This script updates the git remote origin for this repository
@@ -38,7 +38,7 @@ fi
 
 echo ""
 echo "Step 1: Removing existing origin remote..."
-if git remote get-url origin &>/dev/null; then
+if git remote | grep -q "^origin$"; then
     git remote remove origin
     echo "  ✓ Removed existing origin remote"
 else
@@ -46,12 +46,12 @@ else
 fi
 
 echo "Step 2: Adding new origin remote..."
-if ! git remote add origin "$NEW_REMOTE" 2>/dev/null; then
-    echo "  ⚠ Failed to add new origin remote (it may already exist)"
-    echo "  Attempting to update existing remote..."
+if git remote | grep -q "^origin$"; then
+    echo "  ⚠ Origin remote still exists, updating URL instead..."
     git remote set-url origin "$NEW_REMOTE"
     echo "  ✓ Updated existing origin remote to: $NEW_REMOTE"
 else
+    git remote add origin "$NEW_REMOTE"
     echo "  ✓ Added new origin remote: $NEW_REMOTE"
 fi
 
