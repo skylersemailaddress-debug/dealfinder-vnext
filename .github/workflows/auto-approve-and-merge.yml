@@ -1,0 +1,39 @@
+name: Auto-approve + enable auto-merge
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: auto-approve-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  approve_and_automerge:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.AUTO_APPROVER_APP_ID }}
+          installation-id: ${{ secrets.AUTO_APPROVER_INSTALLATION_ID }}
+          private-key: ${{ secrets.AUTO_APPROVER_PRIVATE_KEY }}
+
+      - name: Approve PR as App
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr review ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --approve --body "Auto-approved by GitHub App."
+
+      - name: Enable auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --auto --squash
