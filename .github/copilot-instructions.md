@@ -19,3 +19,12 @@ Implement DealFinder VNext per `ARCHITECTURE.md`, preserving reliability and aud
 - Updated docs if behavior changes
 - Tests
 - Example curl/PowerShell commands in PR description
+I do not read code. Work like a senior engineer.
+
+Rules:
+- First summarize your understanding in plain English before changes.
+- Prefer minimal, safe edits. No rewrites unless absolutely necessary.
+- Maintain CHANGELOG.md with What/Why/Risk/How-to-test.
+- Maintain ACCEPTANCE_TESTS.md in plain English.
+- If anything conflicts with handoff docs, the handoff docs win.
+- Do not change output formats or pricing intent without asking me.
